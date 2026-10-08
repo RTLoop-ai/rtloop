@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "top": "gcd8_core",
+  "modules": ["gcd8_core", "gcd8_step"],
+  "clock_period_ns": 10.0,
+  "area_um2": 1724.15,
+  "cell_count": 207,
+  "flops": 26,
+  "latches": 0,
+  "revision": "COMPOSITION_SYNTHESIS_V5",
+  "scope": "ORFS_SYNTH_AND_UNPLACED_STA_NOT_PHYSICAL_SIGNOFF",
+  "timing": {
+    "fmax_mhz": 309.5,
+    "min_period_ns": 3.231,
+    "core_fmax_mhz": 395.21,
+    "worst_setup_slack_ns": 6.769,
+    "worst_hold_slack_ns": 0.216,
+    "design_rule_violations": 0,
+    "repaired_area_um2": 2092.0
+  },
+  "power": {"total_w": 0.0004135188, "internal_w": 0.0002716314, "switching_w": 0.0001418865, "leakage_w": 8.418255e-10}
+}

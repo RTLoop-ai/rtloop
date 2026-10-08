@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="64" height="64" fill="none" role="img" aria-label="RTLoop">
+  <rect width="32" height="32" rx="8" fill="#07090a"/>
+  <rect x="12" y="12" width="8" height="8" rx="1.5" fill="#3ddc97"/>
+  <path d="M26 16a10 10 0 1 1-2.93-7.07" stroke="#3ddc97" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M23.9 4.6v4.6h-4.6" stroke="#3ddc97" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

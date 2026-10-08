@@ -1,0 +1,22 @@
+benchmark start=A-01 begin
+department=module package=rv5_fetch status=PASS call=01
+department=module package=rv5_decode status=NEEDS_REPAIR call=02
+department=module package=rv5_decode status=PASS call=03
+department=module package=rv5_imm status=NEEDS_REPAIR call=04
+department=module package=rv5_imm status=PASS call=05
+department=module package=rv5_regfile status=PASS call=06
+department=module package=rv5_hazard status=PASS call=07
+department=integration package=rv5_id status=PASS call=08
+department=module package=rv5_forward status=PASS call=09
+department=module package=rv5_alu status=NEEDS_REPAIR call=10
+department=module package=rv5_alu status=NEEDS_REPAIR call=11
+department=module package=rv5_alu status=STALLED call=12
+department=module package=rv5_alu status=NEEDS_REPAIR call=13
+department=module package=rv5_alu status=PASS call=14
+department=module package=rv5_branch status=PASS call=15
+department=integration package=rv5_ex status=PASS call=16
+department=module package=rv5_lsu status=NEEDS_REPAIR call=17
+department=module package=rv5_lsu status=PASS call=18
+department=module package=rv5_mem status=PASS call=19
+department=integration package=rv5_core status=PASS call=20
+benchmark start=A-01 stop=SUCCESS success=True calls=20 known_cost_usd=0.0097769910 output_limits=0 fallbacks=0 seconds=934.5

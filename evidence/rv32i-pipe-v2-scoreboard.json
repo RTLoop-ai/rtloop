@@ -1,0 +1,9 @@
+{
+  "starts_finished": 10, "valid_starts": 10, "censored_starts": 0, "successes": 10,
+  "success_rate": 1.0, "success_rate_wilson95": [0.7225, 1.0],
+  "failure_stop_reasons": {},
+  "calls_total": 162, "output_limit_calls": 0, "automatic_fallbacks": 0,
+  "known_cost_usd_total": "0.0806610756", "known_cost_usd_per_success": "0.0080661",
+  "median_calls_per_success": 15.5, "median_seconds_per_success": 667.953,
+  "synthesis_fmax_mhz_median": 177.905, "synthesis_area_um2_median": 85029.65, "synthesis_power_w_median": 0.0035345425
+}
