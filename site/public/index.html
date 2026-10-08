@@ -167,6 +167,7 @@
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
   .term-screen { position: relative; }
   .term-screen::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 36px; background: linear-gradient(#0d1213, transparent); z-index: 1; pointer-events: none; }
+  .term-body.static { display: flex; flex-direction: column; justify-content: flex-end; }
   .term-body { height: 404px; overflow: hidden; padding: 16px 15px 18px; font: 11.5px/1.8 var(--mono); letter-spacing: -0.01em; color: #cfd8d5; white-space: pre-wrap; overflow-wrap: anywhere; scroll-behavior: smooth; }
   .ln { animation: lnIn 0.28s ease both; }
   @keyframes lnIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
@@ -405,8 +406,9 @@
   .foot-bottom { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; font-size: 13px; color: var(--dim); }
 
   /* ---------- reveal ---------- */
-  .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1); }
-  .js .reveal.in { opacity: 1; transform: none; }
+  /* Content stays visible even if the observer never fires (screenshots, background tabs). */
+  .js .reveal { transform: translateY(14px); transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .js .reveal.in { transform: none; }
   .js .d1 { transition-delay: 0.08s; }
   .js .d2 { transition-delay: 0.16s; }
   .js .d3 { transition-delay: 0.24s; }
@@ -469,7 +471,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .js .reveal { opacity: 1; transform: none; transition: none; }
+    .js .reveal { transform: none; transition: none; }
     .bar i { transition: none; }
     .ln { animation: none; }
     .live i, .ln.cur::after { animation: none; }
@@ -570,7 +572,36 @@
                 <span class="en">Replay of a real run log: a low-cost model writes the 13 work packages of a 5-stage RV32I pipeline; failures are fed back until every package passes. 20 calls, 934.5 seconds.</span>
                 
               </p>
-              <div class="term-body" id="term-body" aria-hidden="true"></div>
+              <div class="term-body static" id="term-body" aria-hidden="true">
+                <div class="ln plain" data-kind="plain">benchmark start=A-01 begin</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_fetch</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>01</div>
+                <div class="ln" data-kind="repair"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_decode</span><span class="k"> status=</span><span class="s-repair">NEEDS_REPAIR</span><span class="k"> call=</span>02</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_decode</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>03</div>
+                <div class="ln" data-kind="repair"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_imm</span><span class="k"> status=</span><span class="s-repair">NEEDS_REPAIR</span><span class="k"> call=</span>04</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_imm</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>05</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_regfile</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>06</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_hazard</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>07</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>integration<span class="k"> package=</span><span class="v">rv5_id</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>08</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_forward</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>09</div>
+                <div class="ln" data-kind="repair"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_alu</span><span class="k"> status=</span><span class="s-repair">NEEDS_REPAIR</span><span class="k"> call=</span>10</div>
+                <div class="ln fb" data-kind="fb"><span class="arr">  ↳ </span>rv5_alu.v:24: error: A reference to a wire or reg (b[4:0]) is not allowed in a constant expression.</div>
+                <div class="ln" data-kind="repair"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_alu</span><span class="k"> status=</span><span class="s-repair">NEEDS_REPAIR</span><span class="k"> call=</span>11</div>
+                <div class="ln fb" data-kind="fb"><span class="arr">  ↳ </span>ALU i=42 op=1101 a=fb9ab0df b=0000ffff got=00000001 expected=ffffffff</div>
+                <div class="ln" data-kind="stall"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_alu</span><span class="k"> status=</span><span class="s-stall">STALLED</span><span class="k"> call=</span>12</div>
+                <div class="ln fb" data-kind="fb"><span class="arr">  ↳ </span>REPEATED_IMPLEMENTATION → restart from a clean start</div>
+                <div class="ln" data-kind="repair"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_alu</span><span class="k"> status=</span><span class="s-repair">NEEDS_REPAIR</span><span class="k"> call=</span>13</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_alu</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>14</div>
+                <div class="ln fbok" data-kind="fb"><span class="arr">  ↳ </span>PASS rv5_alu vectors=4200</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_branch</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>15</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>integration<span class="k"> package=</span><span class="v">rv5_ex</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>16</div>
+                <div class="ln" data-kind="repair"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_lsu</span><span class="k"> status=</span><span class="s-repair">NEEDS_REPAIR</span><span class="k"> call=</span>17</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_lsu</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>18</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>module<span class="k"> package=</span><span class="v">rv5_mem</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>19</div>
+                <div class="ln" data-kind="pass"><span class="k">department=</span>integration<span class="k"> package=</span><span class="v">rv5_core</span><span class="k"> status=</span><span class="s-pass">PASS</span><span class="k"> call=</span>20</div>
+                <div class="ln end" data-kind="end">benchmark start=A-01 stop=SUCCESS success=True calls=20 known_cost_usd=0.0097769910 output_limits=0 fallbacks=0 seconds=934.5</div>
+                <div class="ln note" data-kind="note">── scoreboard.json · all 10 starts of this plan (not part of this log) ──</div>
+                <div class="ln score" data-kind="score">10/10 passed · $0.0081 per success · median Fmax 177.9 MHz · 85,030 µm²</div>
+              </div>
             </div>
             <div class="term-foot">
               <span><span class="en">Real log, abridged · ↳ lines from check logs</span></span>
@@ -598,7 +629,7 @@
         </div>
         <div class="metric">
           <b>97<em>%</em></b>
-          <span class="en">of our hand-written reference RTL's Fmax, with 0.8% more area (pre-placement estimate)</span>
+          <span class="en">of our reference RTL's Fmax on the RV32I pipeline, with 0.8% more area (pre-placement estimate)</span>
           
         </div>
       </div>
@@ -695,6 +726,7 @@
           <h3><i></i><span class="en">What the model sees</span></h3>
           <ul>
             <li><span class="en">The interface spec of its module</span></li>
+            <li><span class="en">The plan notes for its package</span></li>
             <li><span class="en">Verified dependencies, read-only</span></li>
             <li><span class="en">Its own previous version</span></li>
             <li><span class="en">Raw tool output from the last failure</span></li>
@@ -721,7 +753,7 @@
         <p class="eyebrow"><span class="idx">02</span><span lang="en">Results</span><span class="pair" lang="zh-Hant">實測結果</span></p>
         <h2><span class="en">Measured, not promised</span></h2>
         <p>
-          <span class="en">In every run in the table, one low-cost model wrote every module from an empty file. Our engineers wrote the interface specs, tests and decomposition plans.</span>
+          <span class="en">In every run in the table, one low-cost model wrote every module from an empty file. Our team prepared the interface specs, tests and decomposition plans beforehand; that preparation is where the expertise goes.</span>
           
         </p>
       </div>
@@ -750,43 +782,43 @@
                 <td class="num col-mod">2</td>
                 <td class="num">8/8<span class="pips" data-pips="8/8" aria-hidden="true"></span></td>
                 <td class="num">$0.0002–0.0006</td>
-                <td class="num">26–63 s</td>
+                <td class="num"><span class="en">26–63 s</span></td>
                 <td class="num">310–328 MHz</td>
                 <td class="num">1,640–1,724 µm²</td>
               </tr>
               <tr>
-                <td>RV32I single-cycle<span class="sub"><span class="en">integer-subset CPU</span></span></td>
+                <td><span class="en">RV32I single-cycle</span><span class="sub"><span class="en">integer-subset CPU</span></span></td>
                 <td class="num col-mod">7</td>
                 <td class="num">10/10<span class="pips" data-pips="10/10" aria-hidden="true"></span></td>
                 <td class="num">$0.0063</td>
-                <td class="num">≈ 8 min</td>
+                <td class="num"><span class="en">≈ 8 min</span></td>
                 <td class="num">115.1 MHz</td>
                 <td class="num">68,212 µm²</td>
               </tr>
               <tr class="hi">
-                <td>RV32I 5-stage pipeline<span class="sub"><span class="en">split into stage modules</span></span></td>
+                <td><span class="en">RV32I 5-stage pipeline</span><span class="sub"><span class="en">split into stage modules</span></span></td>
                 <td class="num col-mod">13</td>
                 <td class="num">10/10<span class="pips" data-pips="10/10" aria-hidden="true"></span></td>
                 <td class="num">$0.0081</td>
-                <td class="num">≈ 11 min</td>
+                <td class="num"><span class="en">≈ 11 min</span></td>
                 <td class="num">177.9 MHz</td>
                 <td class="num">85,030 µm²</td>
               </tr>
               <tr>
-                <td>SHA-256 core<span class="sub"><span class="en">hash core, split plan</span></span></td>
+                <td><span class="en">SHA-256 core</span><span class="sub"><span class="en">split plan with stall restarts</span></span></td>
                 <td class="num col-mod">5</td>
-                <td class="num">10/10*<span class="pips" data-pips="10/10" aria-hidden="true"></span></td>
-                <td class="num">$0.0052</td>
+                <td class="num">9/10*<span class="pips" data-pips="9/10" aria-hidden="true"></span></td>
+                <td class="num">$0.0063</td>
                 <td class="num na">—</td>
                 <td class="num na">—</td>
                 <td class="num na">—</td>
               </tr>
               <tr>
-                <td>AES core<span class="sub"><span class="en">one architecture note added by an engineer (0/8 without it)</span></span></td>
+                <td><span class="en">AES core</span><span class="sub"><span class="en">one architecture note added by an engineer (0/8 without it)</span></span></td>
                 <td class="num col-mod">6</td>
                 <td class="num">8/10<span class="pips" data-pips="8/10" aria-hidden="true"></span></td>
                 <td class="num">$0.0143</td>
-                <td class="num">≈ 12 min</td>
+                <td class="num"><span class="en">≈ 12 min</span></td>
                 <td class="num na">—</td>
                 <td class="num na">—</td>
               </tr>
@@ -796,13 +828,13 @@
         <p class="callout">
           <svg aria-hidden="true"><use href="#i-check"/></svg>
           <span>
-            <span class="en">Model-written RTL held up against our hand-written reference RTL. The split pipeline reached a median Fmax of 177.9 MHz against the reference's 183.3 MHz, with 85,030 vs 84,361 µm² of area. The single-cycle core beat its reference: 115.1 vs 105.2 MHz.</span>
+            <span class="en">Model-written RTL held up against our reference RTL. The split pipeline reached a median Fmax of 177.9 MHz against the reference's 183.3 MHz, with 85,030 vs 84,361 µm² of area. The single-cycle core beat its reference: 115.1 vs 105.2 MHz.</span>
             
           </span>
         </p>
       </figure>
       <p class="note reveal">
-        <span class="en">*SHA-256: latest round; the previous plan scored 6/10 and 9/10 in two rounds. RV32I is the base integer subset (FENCE, ECALL and CSR treated as no-ops), checked with our own testbenches rather than the official riscv-tests; memories sit outside the core. Fmax and area come from ORFS synthesis and OpenSTA before placement, with Fmax = 1000 / (clock period − worst setup slack); medians where several runs exist. Engineering estimates from September–October 2026, not signoff and not a formal model qualification.</span>
+        <span class="en">*SHA-256: latest round to synthesis (2026-09-28). Without stall restarts, the same plan scored 6/10, 10/10 and 6/10 in three rounds. RV32I is the base integer subset (FENCE, ECALL and CSR treated as no-ops), checked with our own testbenches rather than the official riscv-tests; memories sit outside the core. Fmax and area come from ORFS synthesis and OpenSTA before placement, with Fmax = 1000 / (clock period − worst setup slack); medians where several runs exist. Engineering estimates from September–October 2026, not signoff and not a formal model qualification.</span>
         
       </p>
       <p class="scope reveal">
@@ -839,23 +871,23 @@
           </div>
           <div class="cmp-row">
             <div class="cmp-label"><span><span class="en">Runs passed</span></span><small><span class="en">higher is better</span></small></div>
-            <div class="bar a" style="--w:30%" role="img" aria-label="Whole core in one package: 3 of 10"><i></i><em>3/10</em></div>
-            <div class="bar b" style="--w:100%" role="img" aria-label="Split into stage modules: 10 of 10"><i></i><em>10/10</em></div>
+            <div class="bar a" style="--w:30%"><i></i><em aria-hidden="true">3/10</em><span class="sr-only"><span class="en">Whole core in one package: 3 of 10 runs passed</span></span></div>
+            <div class="bar b" style="--w:100%"><i></i><em aria-hidden="true">10/10</em><span class="sr-only"><span class="en">Split into stage modules: 10 of 10 runs passed</span></span></div>
           </div>
           <div class="cmp-row">
             <div class="cmp-label"><span><span class="en">Model cost per pass</span></span><small><span class="en">lower is better</span></small></div>
-            <div class="bar a" style="--w:100%" role="img" aria-label="Whole core in one package: 0.074 US dollars"><i></i><em>$0.074</em></div>
-            <div class="bar b short" style="--w:11%" role="img" aria-label="Split into stage modules: 0.0081 US dollars"><i></i><em>$0.0081</em></div>
+            <div class="bar a" style="--w:100%"><i></i><em aria-hidden="true">$0.074</em><span class="sr-only"><span class="en">Whole core in one package: 0.074 US dollars</span></span></div>
+            <div class="bar b short" style="--w:11%"><i></i><em aria-hidden="true">$0.0081</em><span class="sr-only"><span class="en">Split into stage modules: 0.0081 US dollars</span></span></div>
           </div>
           <div class="cmp-row">
             <div class="cmp-label"><span><span class="en">Median time per pass</span></span><small><span class="en">lower is better</span></small></div>
-            <div class="bar a" style="--w:100%" role="img" aria-label="Whole core in one package: 30 minutes"><i></i><em>30 min</em></div>
-            <div class="bar b" style="--w:37%" role="img" aria-label="Split into stage modules: 11 minutes"><i></i><em>11 min</em></div>
+            <div class="bar a" style="--w:100%"><i></i><em aria-hidden="true"><span class="en">30 min</span></em><span class="sr-only"><span class="en">Whole core in one package: 30 minutes</span></span></div>
+            <div class="bar b" style="--w:37%"><i></i><em aria-hidden="true"><span class="en">11 min</span></em><span class="sr-only"><span class="en">Split into stage modules: 11 minutes</span></span></div>
           </div>
           <div class="cmp-row">
             <div class="cmp-label"><span><span class="en">32k output-token overruns</span></span><small><span class="en">lower is better</span></small></div>
-            <div class="bar a" style="--w:100%" role="img" aria-label="Whole core in one package: 51"><i></i><em>51</em></div>
-            <div class="bar b short" style="--w:0%" role="img" aria-label="Split into stage modules: 0"><i></i><em>0</em></div>
+            <div class="bar a" style="--w:100%"><i></i><em aria-hidden="true">51</em><span class="sr-only"><span class="en">Whole core in one package: 51 overruns</span></span></div>
+            <div class="bar b short" style="--w:0%"><i></i><em aria-hidden="true">0</em><span class="sr-only"><span class="en">Split into stage modules: no overruns</span></span></div>
           </div>
         </figure>
       </div>
@@ -867,7 +899,7 @@
             <h3 class="h3-lg" style="margin:0"><span class="en">Beyond synthesis: RTL to GDS</span></h3>
           </div>
           <p>
-            <span class="en">We have also taken three blocks with prepared physical profiles to GDS through a fixed, hash-locked SKY130 flow. These were earlier, human-led runs: SPI's RTL is a low-cost model's refactor of reference RTL, while AES-128 and SHA-256 combined several models, with stronger ones for the bus interface and integration. RV32I and the other designs above stop at synthesis today.</span>
+            <span class="en">We have also taken three blocks with prepared physical profiles to GDS through a fixed, hash-locked SKY130 flow. These were earlier, human-led runs: SPI's RTL is a low-cost model's refactor of reference RTL. For AES-128 and SHA-256, a low-cost model wrote the arithmetic blocks and stronger models wrote the rest, including the AES core, both APB interfaces and SHA-256's compression, padding and stream blocks. RV32I and the other designs above stop at synthesis today.</span>
             
           </p>
         </div>
@@ -904,7 +936,7 @@
                 <div class="chips">
                   <span class="chip">SPI<em>17/17</em></span>
                   <span class="chip">AES-128 / APB<em>17/17</em></span>
-                  <span class="chip">SHA-256 stream / APB<em>17/17</em></span>
+                  <span class="chip">SHA-256 / APB<em>17/17</em></span>
                 </div>
                 <p class="box-note"><span class="en">AES-128 and SHA-256 at a 100 ns clock (10 MHz). Human-led runs, several models.</span></p>
               </div>
@@ -1035,12 +1067,12 @@
         <div class="sec-card reveal d1">
           <span class="idx">02</span>
           <h3><span class="en">Minimum context per call</span></h3>
-          <p><span class="en">A request carries one package's interface spec, the RTL of its verified dependencies, its previous version and tool feedback. Nothing else.</span></p>
+          <p><span class="en">A request carries one package's interface spec and plan notes, the RTL of its verified dependencies, its previous version, and tool feedback with the repair history. Nothing beyond that package.</span></p>
         </div>
         <div class="sec-card reveal d2">
           <span class="idx">03</span>
           <h3><span class="en">One pinned provider</span></h3>
-          <p><span class="en">Today, model calls go to one pinned provider, with fallback routing off and data collection denied.</span></p>
+          <p><span class="en">Today, model calls go through OpenRouter to one pinned inference provider, with fallback routing off and data collection denied.</span></p>
         </div>
         <div class="sec-card reveal d3">
           <span class="idx">04</span>
@@ -1073,7 +1105,7 @@
           <ol class="timeline">
             <li><time datetime="2026-06-05">2026-06-05</time><span><span class="en">RTLoop founded</span></span></li>
             <li><time datetime="2026-08-08">2026-08-08</time><span><span class="en">Development repository started: 813 commits and 68 dated result reports by October 2</span></span></li>
-            <li><time datetime="2026-09-07">2026-09-07</time><span><span class="en">AES-128 / APB taken to GDS, 17/17 (human-led)</span></span></li>
+            <li><time datetime="2026-09-08">2026-09-08</time><span><span class="en">AES-128 / APB taken to GDS, 17/17 (human-led)</span></span></li>
             <li><time datetime="2026-09-09">2026-09-09</time><span><span class="en">SHA-256 / APB taken to GDS, 17/17 (human-led)</span></span></li>
             <li><time datetime="2026-09-30">2026-09-30</time><span><span class="en">RV32I single-cycle from blank RTL: 10/10 on a low-cost model</span></span></li>
             <li><time datetime="2026-10-01">2026-10-01</time><span><span class="en">RV32I 5-stage pipeline: 3/10 → 10/10 after splitting into stage modules</span></span></li>
@@ -1200,96 +1232,53 @@
       for (var r2 = 0; r2 < reveals.length; r2++) { reveals[r2].classList.add('in'); }
     }
 
-    /* ---------- terminal replay (real log: rv32i-pipe-v2, start A-01) ---------- */
-    var LOG = [
-      ['plain', 'benchmark start=A-01 begin'],
-      ['pkg', 'module', 'rv5_fetch', 'PASS', '01'],
-      ['pkg', 'module', 'rv5_decode', 'NEEDS_REPAIR', '02'],
-      ['pkg', 'module', 'rv5_decode', 'PASS', '03'],
-      ['pkg', 'module', 'rv5_imm', 'NEEDS_REPAIR', '04'],
-      ['pkg', 'module', 'rv5_imm', 'PASS', '05'],
-      ['pkg', 'module', 'rv5_regfile', 'PASS', '06'],
-      ['pkg', 'module', 'rv5_hazard', 'PASS', '07'],
-      ['pkg', 'integration', 'rv5_id', 'PASS', '08'],
-      ['pkg', 'module', 'rv5_forward', 'PASS', '09'],
-      ['pkg', 'module', 'rv5_alu', 'NEEDS_REPAIR', '10'],
-      ['fb', 'rv5_alu.v:24: error: A reference to a wire or reg (b[4:0]) is not allowed in a constant expression.'],
-      ['pkg', 'module', 'rv5_alu', 'NEEDS_REPAIR', '11'],
-      ['fb', 'ALU i=42 op=1101 a=fb9ab0df b=0000ffff got=00000001 expected=ffffffff'],
-      ['pkg', 'module', 'rv5_alu', 'STALLED', '12'],
-      ['fb', 'REPEATED_IMPLEMENTATION → restart from a clean start'],
-      ['pkg', 'module', 'rv5_alu', 'NEEDS_REPAIR', '13'],
-      ['pkg', 'module', 'rv5_alu', 'PASS', '14'],
-      ['fbok', 'PASS rv5_alu vectors=4200'],
-      ['pkg', 'module', 'rv5_branch', 'PASS', '15'],
-      ['pkg', 'integration', 'rv5_ex', 'PASS', '16'],
-      ['pkg', 'module', 'rv5_lsu', 'NEEDS_REPAIR', '17'],
-      ['pkg', 'module', 'rv5_lsu', 'PASS', '18'],
-      ['pkg', 'module', 'rv5_mem', 'PASS', '19'],
-      ['pkg', 'integration', 'rv5_core', 'PASS', '20'],
-      ['end', 'benchmark start=A-01 stop=SUCCESS success=True calls=20 known_cost_usd=0.0097769910 output_limits=0 fallbacks=0 seconds=934.5'],
-      ['note', '── scoreboard.json · all 10 starts of this plan (not part of this log) ──'],
-      ['score', '10/10 passed · $0.0081 per success · median Fmax 177.9 MHz · 85,030 µm²']
-    ];
-    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-    function fmt(it) {
-      if (it[0] === 'pkg') {
-        var st = it[3];
-        var cls = st === 'PASS' ? 's-pass' : (st === 'STALLED' ? 's-stall' : 's-repair');
-        return '<span class="k">department=</span>' + it[1] +
-          '<span class="k"> package=</span><span class="v">' + it[2] + '</span>' +
-          '<span class="k"> status=</span><span class="' + cls + '">' + st + '</span>' +
-          '<span class="k"> call=</span>' + it[4];
-      }
-      if (it[0] === 'fb' || it[0] === 'fbok') { return '<span class="arr">  ↳ </span>' + esc(it[1]); }
-      return esc(it[1]);
-    }
-    function delay(it) {
-      if (it[0] === 'pkg') { return it[3] === 'PASS' ? 330 : (it[3] === 'STALLED' ? 760 : 560); }
-      if (it[0] === 'fb' || it[0] === 'fbok') { return 820; }
-      if (it[0] === 'end' || it[0] === 'note') { return 900; }
-      return 420;
-    }
-    function makeLine(it) {
-      var d = document.createElement('div');
-      d.className = 'ln' + (it[0] === 'pkg' ? '' : ' ' + it[0]);
-      d.innerHTML = fmt(it);
-      return d;
-    }
+    /* ---------- terminal replay ----------
+       The full real log is already in the HTML, so readers without JavaScript and
+       screenshots see it. Once the terminal has been on screen for a moment, the
+       log is cleared and replayed line by line. */
     var term = document.getElementById('term-body');
-    if (term) {
-      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduce) {
-        for (var x = 0; x < LOG.length; x++) { term.appendChild(makeLine(LOG[x])); }
-        term.scrollTop = term.scrollHeight;
-      } else {
-        var idx = 0, visible = true, timer = null;
-        var next = function () {
-          timer = null;
-          if (!visible) { return; }
-          if (idx >= LOG.length) {
-            timer = setTimeout(function () { term.innerHTML = ''; idx = 0; timer = null; next(); }, 6500);
-            return;
-          }
-          var prev = term.querySelector('.cur');
-          if (prev) { prev.classList.remove('cur'); }
-          var line = makeLine(LOG[idx]);
-          line.classList.add('cur');
-          term.appendChild(line);
-          term.scrollTop = term.scrollHeight;
-          var wait = delay(LOG[idx]);
-          idx++;
-          timer = setTimeout(next, wait);
-        };
-        if ('IntersectionObserver' in window) {
-          new IntersectionObserver(function (entries) {
-            visible = entries[0].isIntersecting;
-            if (visible && !timer) { next(); }
-          }).observe(term);
-        } else {
-          next();
-        }
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (term && !reduce && 'IntersectionObserver' in window) {
+      var lines = [];
+      for (var c = 0; c < term.children.length; c++) {
+        var el = term.children[c];
+        lines.push({ cls: el.className, kind: el.getAttribute('data-kind'), html: el.innerHTML });
       }
+      var DELAY = { pass: 330, repair: 560, stall: 760, fb: 820, end: 900, note: 900, score: 420, plain: 420 };
+      var idx = 0, visible = false, started = false, timer = null;
+      var next = function () {
+        timer = null;
+        if (!visible || document.hidden) { return; }
+        if (idx >= lines.length) {
+          timer = setTimeout(function () { term.innerHTML = ''; idx = 0; timer = null; next(); }, 6500);
+          return;
+        }
+        var prev = term.querySelector('.cur');
+        if (prev) { prev.classList.remove('cur'); }
+        var d = document.createElement('div');
+        d.className = lines[idx].cls + ' cur';
+        d.innerHTML = lines[idx].html;
+        term.appendChild(d);
+        term.scrollTop = term.scrollHeight;
+        timer = setTimeout(next, DELAY[lines[idx].kind] || 420);
+        idx++;
+      };
+      var begin = function () {
+        if (started || !visible || document.hidden) { return; }
+        started = true;
+        term.classList.remove('static');
+        term.innerHTML = '';
+        next();
+      };
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+        if (!visible) { return; }
+        if (!started) { setTimeout(begin, 1200); } else if (!timer) { next(); }
+      }).observe(term);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden || !visible) { return; }
+        if (!started) { setTimeout(begin, 1200); } else if (!timer) { next(); }
+      });
     }
   })();
 </script>

@@ -9,6 +9,7 @@ one clean language per page.
 Usage: python site/build.py
 """
 
+import re
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -171,6 +172,8 @@ def build(code):
         if key not in html:
             raise ValueError(f"placeholder {key} missing from source")
         html = html.replace(key, value)
+    # Attribute text that can't hold <span>s is written {{i18n:English|中文}}.
+    html = re.sub(r"\{\{i18n:([^|{}]*)\|([^{}]*)\}\}", lambda m: m.group(1 if code == "en" else 2), html)
     if "{{" in html:
         raise ValueError("unreplaced placeholder left in output")
 

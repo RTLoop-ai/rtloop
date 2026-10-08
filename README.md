@@ -38,10 +38,11 @@
 | 2026-08-08 | Development repository started |
 | 2026-08-28 | First SKY130HD baseline (GCD) through the native physical flow |
 | 2026-09-06 | Low-cost model capability baseline and feedback-repair experiments on GCD |
-| 2026-09-07 | **AES-128 / APB taken to GDS, 17/17** (human-led, several models). SPI run end to end by a user through the browser workbench |
+| 2026-09-07 | SPI run end to end through the browser workbench (internal acceptance test) |
+| 2026-09-08 | **AES-128 / APB taken to GDS, 17/17** (human-led, several models) |
 | 2026-09-09 | **SHA-256 / APB taken to GDS, 17/17** (human-led, several models; the layout above) |
 | 2026-09-26 | Low-cost model benchmark on the SHA-256 core, 10 blank starts per arm |
-| 2026-09-30 | **RV32I single-cycle from blank RTL: 10/10** with an auto-generated decomposition, versus 0/10 when everything is asked at once (Fisher p = 0.0001) |
+| 2026-09-30 | **RV32I single-cycle from blank RTL: 10/10** with the default one-module-per-package plan, versus 1/10 without splitting (Fisher p = 0.0001) and 0/10 in a single request |
 | 2026-10-01 | **RV32I 5-stage pipeline: 3/10 → 10/10** after splitting the core into stage modules (Fisher p = 0.003) |
 
 ## What the flow does
@@ -62,25 +63,25 @@ flowchart LR
   N --> V["Re-verify everything<br/>→ synthesis"]
 ```
 
-- **What the model sees:** the interface spec of its module, verified dependencies (read-only), its own previous version, raw tool output from the last failure, and the repair history of the package.
+- **What the model sees:** the interface spec of its module, the plan notes for its package, verified dependencies (read-only), its own previous version, raw tool output from the last failure, and the repair history of the package.
 - **What it can't do:** edit tests or other modules, declare its own success, exceed call or cost budgets, or use latches, `initial` blocks or system tasks.
 - **Testing the tests:** the loop only guarantees that RTL passes your tests, so tests are first run against reference RTL and then against seeded bugs. On the RV32I pipeline, all 22 seeded bugs were caught.
 
 ## Results
 
-In every run in this table, one low-cost model wrote every module from an empty file. Our engineers wrote the interface specs, tests and decomposition plans.
+In every run in this table, one low-cost model wrote every module from an empty file. Our team prepared the interface specs, tests and decomposition plans beforehand; that preparation is where the expertise goes.
 
 | Design | Modules | Passed | Cost / pass | Time / pass | Fmax | Area |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | gcd8 (8-bit GCD engine) | 2 | 8/8 | $0.0002–0.0006 | 26–63 s | 310–328 MHz | 1,640–1,724 µm² |
 | RV32I single-cycle | 7 | 10/10 | $0.0063 | ≈ 8 min | 115.1 MHz | 68,212 µm² |
 | RV32I 5-stage pipeline | 13 | 10/10 | $0.0081 | ≈ 11 min | 177.9 MHz | 85,030 µm² |
-| SHA-256 core | 5 | 10/10* | $0.0052 | — | — | — |
+| SHA-256 core (split plan with stall restarts) | 5 | 9/10* | $0.0063 | — | — | — |
 | AES core (one architecture note added by an engineer; 0/8 without it) | 6 | 8/10 | $0.0143 | ≈ 12 min | — | — |
 
-**Model-written vs hand-written RTL.** The split pipeline reached a median Fmax of 177.9 MHz against 183.3 MHz for our hand-written reference RTL, with 85,030 vs 84,361 µm² of area. The single-cycle core beat its reference: 115.1 vs 105.2 MHz.
+**Model-written RTL vs our reference RTL.** The split pipeline reached a median Fmax of 177.9 MHz against 183.3 MHz for our reference RTL, with 85,030 vs 84,361 µm² of area. The single-cycle core beat its reference: 115.1 vs 105.2 MHz.
 
-\*SHA-256: latest round; the previous plan scored 6/10 and 9/10 in two rounds. RV32I is the base integer subset (FENCE, ECALL and CSR treated as no-ops), checked with our own testbenches rather than the official riscv-tests; memories sit outside the core. Fmax and area come from ORFS synthesis and OpenSTA on SkyWater SKY130HD before placement, with Fmax = 1000 / (clock period − worst setup slack); medians where several runs exist. Costs are model API costs only and exclude engineering time. These are engineering estimates from September–October 2026, not signoff and not a formal model qualification.
+\*SHA-256: latest round to synthesis (2026-09-28). Without stall restarts, the same plan scored 6/10, 10/10 and 6/10 in three rounds. RV32I is the base integer subset (FENCE, ECALL and CSR treated as no-ops), checked with our own testbenches rather than the official riscv-tests; memories sit outside the core. Fmax and area come from ORFS synthesis and OpenSTA on SkyWater SKY130HD before placement, with Fmax = 1000 / (clock period − worst setup slack); medians where several runs exist. Costs are model API costs only and exclude engineering time. These are engineering estimates from September–October 2026, not signoff and not a formal model qualification.
 
 **Scope today:** synthesizable Verilog-2005 with a single clock, simulated with Icarus Verilog and synthesized with Yosys and OpenROAD on SkyWater SKY130.
 
@@ -105,7 +106,7 @@ We have also taken three blocks with prepared physical profiles to GDS through a
 
 A run counts only when all 17 acceptance conditions hold, including setup and hold slack ≥ 0, zero DRC violations and an LVS match. Taken to GDS on SkyWater SKY130HD: **SPI**, **AES-128 / APB** and **SHA-256 / APB** (AES-128 and SHA-256 at a 100 ns clock).
 
-These were earlier, human-led runs, unlike the low-cost-model results above: SPI's RTL is a low-cost model's refactor of reference RTL, while AES-128 and SHA-256 combined several models, with stronger ones for the bus interface and integration. RV32I and the other designs in the table stop at synthesis today. All three are digital-core layouts on an open PDK; pad ring, packaging and tape-out signoff are out of scope.
+These were earlier, human-led runs, unlike the low-cost-model results above: SPI's RTL is a low-cost model's refactor of reference RTL. For AES-128 and SHA-256, a low-cost model wrote the arithmetic blocks and stronger models wrote the rest, including the AES core, both APB interfaces and SHA-256's compression, padding and stream blocks. RV32I and the other designs in the table stop at synthesis today. All three are digital-core layouts on an open PDK; pad ring, packaging and tape-out signoff are out of scope.
 
 ### Evidence in this repository
 
@@ -121,8 +122,8 @@ Excerpts of real outputs from the runs above, taken from our run records:
 ## You control what leaves
 
 - **Verification stays local.** Simulation, structural checks, synthesis and the physical flow run on your machines. Reference RTL, testbenches, netlists and layouts never leave.
-- **Minimum context per call.** A request carries one package's interface spec, the RTL of its verified dependencies, its previous version and tool feedback. Nothing else.
-- **One pinned provider.** Today, model calls go to one pinned provider, with fallback routing off and data collection denied.
+- **Minimum context per call.** A request carries one package's interface spec and plan notes, the RTL of its verified dependencies, its previous version, and tool feedback with the repair history. Nothing beyond that package.
+- **One pinned provider.** Today, model calls go through OpenRouter to one pinned inference provider, with fallback routing off and data collection denied.
 - **Every call on record.** Each request and response is stored with the project for audit. API keys live only in the subprocess that calls the model, never in logs, reports or Git.
 
 ## What we offer
@@ -150,7 +151,7 @@ RTLoop was founded in Taiwan on June 5, 2026. Our 10 members include graduate st
 | [`site/`](site/) | Source of [rtloop.com](https://rtloop.com): `src/index.html` is the bilingual source, `build.py` writes the English and Chinese pages to `public/` |
 | [`assets/`](assets/) | Logo |
 
-Detailed evidence from the private repository is available to clients and program reviewers on request.
+The private development repository belongs to the same GitHub account (Rober1208) that authored this repository's commits. Clients and startup-program reviewers can request read-only access to the detailed evidence.
 
 ## Contact
 
